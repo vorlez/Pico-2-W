@@ -3,10 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Simple Webpage</title>
+    <title>Pico W LED Control</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        button { font-size: 20px; padding: 10px; margin: 10px; }
+    </style>
 </head>
 <body>
-    <h1>Welcome to My Simple Website!</h1>
-    <p>This is my first GitHub Pages site.</p>
+    <h1>Control Raspberry Pi Pico W LED</h1>
+    <p>LED is currently: <strong id="ledState">Loading...</strong></p>
+    <button onclick="sendRequest('/on')">Turn ON</button>
+    <button onclick="sendRequest('/off')">Turn OFF</button>
+
+    <script>
+        // Replace this with the IP address of your Pico W
+        const picoIp = 'http://<your-pi-ip>';
+
+        function sendRequest(path) {
+            fetch(picoIp + path)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('ledState').innerHTML = data.includes('ON') ? 'ON' : 'OFF';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Get initial LED state
+        fetch(picoIp)
+            .then(response => response.text())
+            .then(data => {
+                const state = data.includes('LED is currently: <strong>ON</strong>') ? 'ON' : 'OFF';
+                document.getElementById('ledState').innerHTML = state;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    </script>
 </body>
 </html>

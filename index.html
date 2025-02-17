@@ -1,56 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pico W LED Control</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        button { font-size: 20px; padding: 10px; margin: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Sharing</title>
 </head>
 <body>
-    <h1>Control Raspberry Pi Pico W LED</h1>
-    <p>LED is currently: <strong id="ledState">Loading...</strong></p>
-    <button onclick="setState('ON')">Turn ON</button>
-    <button onclick="setState('OFF')">Turn OFF</button>
+  <h1>Write something to share with others</h1>
+  <textarea id="userText" rows="10" cols="50"></textarea><br><br>
+  <button onclick="saveText()">Save</button>
 
-    <script>
-        const apiUrl = 'http://<your-server-ip>:3000';  // Replace with your server's IP address or domain
+  <h2>Shared Text</h2>
+  <div id="sharedText"></div>
 
-        // Function to update the LED state
-        function setState(state) {
-            fetch(apiUrl + '/set-led', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ state })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.state) {
-                    document.getElementById('ledState').innerText = data.state;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
+  <script>
+    function saveText() {
+      const text = document.getElementById('userText').value;
+      // In a real setup, you'd send the text to a server and store it
+      // For now, we simulate saving the text by displaying it below
+      localStorage.setItem('sharedText', text);
+      displaySharedText();
+    }
 
-        // Load the current LED state
-        function loadState() {
-            fetch(apiUrl + '/led-state')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('ledState').innerText = data.state;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
+    function displaySharedText() {
+      const savedText = localStorage.getItem('sharedText');
+      document.getElementById('sharedText').textContent = savedText ? savedText : 'No text shared yet.';
+    }
 
-        window.onload = loadState;
-    </script>
+    // Load the saved text on page load
+    window.onload = displaySharedText;
+  </script>
 </body>
 </html>

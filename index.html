@@ -11,33 +11,46 @@
 </head>
 <body>
     <h1>Control Raspberry Pi Pico W LED</h1>
-    <p>LED is currently: <strong id="ledState">OFF</strong></p>
+    <p>LED is currently: <strong id="ledState">Loading...</strong></p>
     <button onclick="setState('ON')">Turn ON</button>
     <button onclick="setState('OFF')">Turn OFF</button>
 
     <script>
-        let ledState = "OFF";  // Store the LED state
+        const apiUrl = 'http://<your-server-ip>:3000';  // Replace with your server's IP address or domain
 
         // Function to update the LED state
         function setState(state) {
-            ledState = state;
-            document.getElementById('ledState').innerText = state;
-            saveState();  // Save the state to localStorage or a backend
+            fetch(apiUrl + '/set-led', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ state })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.state) {
+                    document.getElementById('ledState').innerText = data.state;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
 
-        // Save the state to the local storage (could be sent to a backend)
-        function saveState() {
-            localStorage.setItem('ledState', ledState);
+        // Load the current LED state
+        function loadState() {
+            fetch(apiUrl + '/led-state')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('ledState').innerText = data.state;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
 
-        // Load the state when the page loads (if available)
-        window.onload = function() {
-            const savedState = localStorage.getItem('ledState');
-            if (savedState) {
-                ledState = savedState;
-                document.getElementById('ledState').innerText = savedState;
-            }
-        };
+        window.onload = loadState;
     </script>
 </body>
 </html>

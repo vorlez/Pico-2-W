@@ -16,18 +16,31 @@
   <script>
     function saveText() {
       const text = document.getElementById('userText').value;
-      // In a real setup, you'd send the text to a server and store it
-      // For now, we simulate saving the text by displaying it below
-      localStorage.setItem('sharedText', text);
-      displaySharedText();
+
+      fetch('http://localhost:3000/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text })
+      })
+      .then(response => response.text())
+      .then(() => {
+        alert('Text saved!');
+        displaySharedText();
+      })
+      .catch(error => console.error('Error saving text:', error));
     }
 
     function displaySharedText() {
-      const savedText = localStorage.getItem('sharedText');
-      document.getElementById('sharedText').textContent = savedText ? savedText : 'No text shared yet.';
+      fetch('http://localhost:3000/getText')
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById('sharedText').textContent = text || 'No text shared yet.';
+        })
+        .catch(error => console.error('Error fetching text:', error));
     }
 
-    // Load the saved text on page load
     window.onload = displaySharedText;
   </script>
 </body>

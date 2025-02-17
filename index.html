@@ -11,35 +11,33 @@
 </head>
 <body>
     <h1>Control Raspberry Pi Pico W LED</h1>
-    <p>LED is currently: <strong id="ledState">Loading...</strong></p>
-    <button onclick="sendRequest('/on')">Turn ON</button>
-    <button onclick="sendRequest('/off')">Turn OFF</button>
+    <p>LED is currently: <strong id="ledState">OFF</strong></p>
+    <button onclick="setState('ON')">Turn ON</button>
+    <button onclick="setState('OFF')">Turn OFF</button>
 
     <script>
-        // Replace this with the IP address of your Pico W
-        const picoIp = 'http://192.168.56.174';
+        let ledState = "OFF";  // Store the LED state
 
-        function sendRequest(path) {
-            fetch(picoIp + path)
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('ledState').innerHTML = data.includes('ON') ? 'ON' : 'OFF';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+        // Function to update the LED state
+        function setState(state) {
+            ledState = state;
+            document.getElementById('ledState').innerText = state;
+            saveState();  // Save the state to localStorage or a backend
         }
 
-        // Get initial LED state
-        fetch(picoIp)
-            .then(response => response.text())
-            .then(data => {
-                const state = data.includes('LED is currently: <strong>ON</strong>') ? 'ON' : 'OFF';
-                document.getElementById('ledState').innerHTML = state;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        // Save the state to the local storage (could be sent to a backend)
+        function saveState() {
+            localStorage.setItem('ledState', ledState);
+        }
+
+        // Load the state when the page loads (if available)
+        window.onload = function() {
+            const savedState = localStorage.getItem('ledState');
+            if (savedState) {
+                ledState = savedState;
+                document.getElementById('ledState').innerText = savedState;
+            }
+        };
     </script>
 </body>
 </html>
